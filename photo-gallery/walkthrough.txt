@@ -158,3 +158,118 @@ Add a Grid component and loop through each photo in the photos array inside the 
 
 
 -SAVING PHOTOS ON FILE system
+
+up until now the code we made does not store the images permanently, so when the app is closed the images are lost. to correct this, we will use the filesystem Api.
+
+
+add a new savePicture(), in the PhotoService class (src/app/services/photo.service.ts). We pass in the cameraPhoto object, which represents the newly captured device photo:
+
+private async savePicture(cameraPhoto: CameraPhoto) { }
+
+use this in addNewToGallery():
+ // Save the picture and add it to photo collection
+  const savedImageFile = await this.savePicture(capturedPhoto);
+  this.photos.unshift(savedImageFile);
+
+
+use the Capacitor Filesystem API to save the photo to the filesystem. To start, convert the photo to base64 format, then feed the data to the Filesystem’s writeFile function. 
+
+write this inside savePicture()
+private async savePicture(cameraPhoto: CameraPhoto) {
+  // Convert photo to base64 format, required by Filesystem API to save
+  const base64Data = await this.readAsBase64(cameraPhoto);
+
+  // Write the file to the data directory
+  const fileName = new Date().getTime() + '.jpeg';
+  const savedFile = await Filesystem.writeFile({
+    path: fileName,
+    data: base64Data,
+    directory: Directory.Data
+  });
+
+  // Use webPath to display the new image instead of base64 since it's
+  // already loaded into memory
+  return {
+    filepath: fileName,
+    webviewPath: cameraPhoto.webPath
+  };
+}
+
+
+readAsBase64() is helper function , it requires a small amount of platform-specific code/logic 
+for web we use:
+
+private async readAsBase64(cameraPhoto: CameraPhoto) {
+  // Fetch the photo, read as a blob, then convert to base64 format
+  const response = await fetch(cameraPhoto.webPath!);
+  const blob = await response.blob();
+
+  return await this.convertBlobToBase64(blob) as string;
+}
+
+convertBlobToBase64 = (blob: Blob) => new Promise((resolve, reject) => {
+  const reader = new FileReader;
+  reader.onerror = reject;
+  reader.onload = () => {
+      resolve(reader.result);
+  };
+  reader.readAsDataURL(blob);
+});
+
+
+Obtaining the camera photo as base64 format on the web appears to be a bit trickier than on mobile. In reality, we’re just using built-in web APIs: fetch() as a neat way to read the file into blob format, then FileReader’s readAsDataURL() to convert the photo blob to base64.
+
+
+---LOADING PHOTOS FROM FILESYSTEM
+
+we use capacitor storage api to store array of photos in a key-value store
+
+define a variable that will act as the key for store:
+
+
+  //variable which will act as key for the store
+  private PHOTO_STORAGE : string ="photos";
+
+
+then at the end of the addNewToGallery function add a call to Storage.set() to save the Photos array. By adding it here, the Photos array is stored each time new photo is taken. This way all photo data is saved.
+
+  Storage.set({
+    key:this.PHOTO_STORAGE,
+    value: JSON.stringify(this.photos)
+  });
+
+Now that the photos are saved we create a loadSaved() to retrieve the data. use the same key to retrieve the photos array in JSON format and parse it into an array:
+
+
+  //loading saved photos:
+  public async loadSaved(){
+    //retrieve cached photo array data
+    const photoList = await Storage.get({
+      key: this.PHOTO_STORAGE
+    });
+    this.photos = JSON.parse(photoList.value) || [];
+  }
+
+On mobile (coming up next!), we can directly set the source of an image tag - <img src="x" /> - to each photo file on the Filesystem, displaying them automatically. On the web, however, we must read each image from the Filesystem into base64 format, using a new base64 property on the Photo object. This is because the Filesystem API uses IndexedDB under the hood.
+add the following to the loadSaved():
+
+  // Display the photo by reading into base64 format
+for (let photo of this.photos) {
+  // Read each saved photo's data from the Filesystem
+  const readFile = await Filesystem.readFile({
+      path: photo.filepath,
+      directory: Directory.Data
+  });
+
+  // Web platform only: Load the photo as base64 data
+  photo.webviewPath = `data:image/jpeg;base64,${readFile.data}`;
+}
+
+next, call this new function in tab2.page.ts so that when the user first navigates to Tab2, all photos are loaded and displayed on the screen 
+
+    async ngOnInit(){
+      await this.photoService.loadSaved();
+    }
+
+
+--ADDING MOBILE
