@@ -117,3 +117,6 @@ npm install --save
 now, we move on to,
 DISPLAYING PHOTOS---
 
+
+
+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
