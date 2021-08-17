@@ -118,5 +118,43 @@ now, we move on to,
 DISPLAYING PHOTOS---
 
 
+we create a new interface called Photo outside the PhotoService class definition. In this interface we store our photo metadata
 
-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
+export interface Photo{
+  filepath:string;
+  webviewPath:string;
+}
+
+at the top of the file we create an array of photos which will have reference to each photo captured with camera
+
+In the addNewToGallery function we add the newly captured photo to Photos array:
+
+this.photos.unshift({
+  filepath:"soon...",
+  webviewPath:capturedPhoto.webPath
+});
+
+
+next in tab2.page.html to displat image on screen. 
+Add a Grid component and loop through each photo in the photos array inside the PhotoService, adding an ion-img (image component) tag for each. Point the src at photo's path:
+
+<!-- image grid system -->
+
+  <ion-content>
+    <ion-grid>
+      <ion-row>
+        <ion-col size="6" 
+          *ngFor="let photo of photoService.photos; index as position">
+
+        <ion-img [src]="photo.webviewPath">
+        </ion-img>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-content>
+
+
+--check if everything is working fine and then move forward..
+
+
+-SAVING PHOTOS ON FILE system
