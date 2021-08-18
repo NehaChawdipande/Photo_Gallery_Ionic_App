@@ -1,4 +1,4 @@
-Notes--
+WALKTHROUGH FOR MAKING PHOTOGALLERY IN TAB2-----
 
 
 -first we installl ionic cli, native-run which will be used to run native binaries on devices 
