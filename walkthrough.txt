@@ -273,3 +273,147 @@ next, call this new function in tab2.page.ts so that when the user first navigat
 
 
 --ADDING MOBILE
+
+the app will be complete when it is able to run on ios, android and the web using a single codebase
+
+We use PLatform API for this purpose 
+
+import the platform api in photo.service.ts, it will be used to retrieve information about current device. 
+
+  import {Platform} from '@ionic/angular';
+
+then add the following changes to the constructor:
+
+    constructor(platform:Platform){
+      this.platform=platform; }
+
+Now we will first update the photo saving functionality to support mobile.
+In readAsBase64() function we check the platform on which the app is running on. 
+
+-If its "hybrid" (i.e. Capacitor or Cordova, two native runtimes): then read the photo file into base64 format using fileSystem.readFile()
+-else use same logic as before when running the app on web.
+
+Change the readAsBase64 function as follows:
+
+    private async readAsBase64(cameraPhoto: CameraPhoto) {
+    // "hybrid" will detect Cordova or Capacitor
+      if (this.platform.is('hybrid')) {
+        // Read the file into base64 format
+        const file = await Filesystem.readFile({
+          path: cameraPhoto.path
+        });
+
+        return file.data;
+      }
+      else {
+        // Fetch the photo, read as a blob, then convert to base64 format
+        const response = await fetch(cameraPhoto.webPath);
+        const blob = await response.blob();
+
+        return await this.convertBlobToBase64(blob) as string;
+      }
+    }
+
+next, update savePicture():
+-When running on mobile: set filepath to result of writeFile() op - savedFile.uri
+-when setting the webviewPath, use special Capacitor.convertFileSrc().
+
+change the savePicture() as follows:
+
+  // Save picture to file on device
+  private async savePicture(cameraPhoto: CameraPhoto) {
+    // Convert photo to base64 format, required by Filesystem API to save
+    const base64Data = await this.readAsBase64(cameraPhoto);
+
+    // Write the file to the data directory
+    const fileName = new Date().getTime() + '.jpeg';
+    const savedFile = await Filesystem.writeFile({
+      path: fileName,
+      data: base64Data,
+      directory: Directory.Data
+    });
+
+    if (this.platform.is('hybrid')) {
+      // Display the new image by rewriting the 'file://' path to HTTP
+      // Details: https://ionicframework.com/docs/building/webview#file-protocol
+      return {
+        filepath: savedFile.uri,
+        webviewPath: Capacitor.convertFileSrc(savedFile.uri),
+      };
+    }
+    else {
+      // Use webPath to display the new image instead of base64 since it's
+      // already loaded into memory
+      return {
+        filepath: fileName,
+        webviewPath: cameraPhoto.webPath
+      };
+    }
+  }
+
+
+Next, the loadSaved() function; on mobile, we can directly set the source of an img tag - <img src ="z"> - to each photo on the Filesystem, and display them automatically.
+
+so, Only the web requires reading each img from Filesystem into base64 format. update loadSaved() to add an if statement around fileSystem code.
+
+    public async loadSaved() {
+      // Retrieve cached photo array data
+      const photoList = await Storage.get({ key: this.PHOTO_STORAGE });
+      this.photos = JSON.parse(photoList.value) || [];
+
+      // Easiest way to detect when running on the web:
+      // “when the platform is NOT hybrid, do this”
+      if (!this.platform.is('hybrid')) {
+        // Display the photo by reading into base64 format
+        for (let photo of this.photos) {
+          // Read each saved photo's data from the Filesystem
+          const readFile = await Filesystem.readFile({
+              path: photo.filepath,
+              directory: Directory.Data
+          });
+
+          // Web platform only: Load the photo as base64 data
+          photo.webviewPath = `data:image/jpeg;base64,${readFile.data}`;
+        }
+      }
+    }
+
+now, DEPLOYING MOBILE---------
+
+setting up capacitor--
+make a fresh build of the project.
+
+  ionic build // everytime you build , web directory www is updated.
+
+now, create both ios and android projects:
+
+  ionic cap add ios
+  ionic cap add android
+
+Note that whenever the ionic build command is run, updtes are made to www directory; so, we need to copy those changes to native project using the command:
+  ionic cap copy
+
+
+After making updates to the native portion of the code (such as adding a new plugin), use the sync command:
+
+  ionic cap sync
+
+
+--ANDROID DEPLOYMENT---
+
+In this project we have done android deployment:
+
+First, run the Capacitor open command, which opens the native Android project in Android Studio:
+
+  ionic cap open android
+
+we must enable the correct permissions to use the Camera. Configure these in the AndroidManifest.xml file. Android Studio will likely open this file automatically, but in case it doesn't, locate it under android/app/src/main/.
+
+Scroll to the Permissions section and ensure these entries are included:
+
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+
+Save the file. With permissions in place, we are ready to try out the app on a real device! Connect an Android device to your computer. Within Android Studio, click the "Run" button, select the attached Android device, then click OK to build, install, and launch the app on your device.
+
