@@ -1,0 +1,21 @@
+.CardImg{
+    // width: fit-content;
+    // height: fit-content;
+    width: 400px;
+    height: fit-content;
+    padding: 10px;
+    display: inline-block;
+}
+
+#heart{
+ font-size: 25px;
+ color: grey;
+ 
+}
+#heart:hover{
+    color:red;
+}
+
+#fab{
+color: rgba(37, 37, 37, 0);
+}
