@@ -13,11 +13,11 @@
     </ion-toolbar>
   </ion-header>
   <ion-card class="CardImg" >
-    <img class="img" src="assets/images/Milan.jpg" />
-
+    <img class="img" id="img1" src="https://images.unsplash.com/photo-1602010510394-ba139feda07f?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=889&q=80"/>
+     
     <ion-content>
       <ion-fab  vertical="top" horizontal="end" slot="fixed">
-        <ion-fab-button color="light" id="fab" >
+        <ion-fab-button color="light" id="fab" (click)="like('img1')">
           <ion-icon name="heart" id="heart"></ion-icon>
         </ion-fab-button>
       </ion-fab> 
@@ -25,7 +25,7 @@
 
     <ion-card-header>
       <ion-card-subtitle>Destination</ion-card-subtitle>
-      <ion-card-title>Milan,Italy</ion-card-title>
+      <ion-card-title>Milan, Italy</ion-card-title>
     </ion-card-header>
 
     <ion-card-content >
@@ -37,11 +37,11 @@
 
 
   <ion-card class="CardImg" >
-    <img class="img" src="assets/images/Seoul.jpg" />
+    <img class="img" id="img2" src="https://images.unsplash.com/photo-1556513584-e1cf4603b0ad?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1789&q=80" />
 
     <ion-content>
       <ion-fab  vertical="top" horizontal="end" slot="fixed">
-        <ion-fab-button color="light" id="fab" >
+        <ion-fab-button color="light" id="fab" (click)="like('img2')">
           <ion-icon name="heart" id="heart"></ion-icon>
         </ion-fab-button>
       </ion-fab> 
@@ -60,11 +60,11 @@
 
 
   <ion-card class="CardImg" >
-    <img class="img" src="assets/images/Banglore.jpg" />
+    <img class="img" id="img3" src="https://i.pinimg.com/originals/66/7d/75/667d75eb4e4ce16bd89b262e27ed1c2d.jpg" />
 
     <ion-content>
       <ion-fab  vertical="top" horizontal="end" slot="fixed">
-        <ion-fab-button color="light" id="fab" >
+        <ion-fab-button color="light" id="fab" (click)="like('img3')" >
           <ion-icon name="heart" id="heart"></ion-icon>
         </ion-fab-button>
       </ion-fab> 
@@ -77,18 +77,19 @@
 
     <ion-card-content >
       
-          Bengaluru (also called Bangalore) is the capital of India's southern Karnataka state. The center of India's high-tech industry, the city is also known for its parks and nightlife.     </ion-card-content>
+      Bengaluru (also called Bangalore) is the capital of India's southern Karnataka state. The center of India's high-tech industry, the city is also known for its parks and nightlife.    
+     </ion-card-content>
 
     
   </ion-card>
 
   
   <ion-card class="CardImg" >
-    <img class="img" src="assets/images/England.jpg" />
+    <img class="img" id="img4" src="https://images.unsplash.com/photo-1485756884019-5519df92d868?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80" />
     <ion-content>
       <ion-fab  vertical="top" horizontal="end" slot="fixed">
-        <ion-fab-button color="light" id="fab" >
-          <ion-icon name="heart" id="heart"></ion-icon>
+        <ion-fab-button color="light" id="fab"(click)="like('img4')" >
+          <ion-icon name="heart" id="heart" ></ion-icon>
         </ion-fab-button>
       </ion-fab> 
     </ion-content>
@@ -106,11 +107,11 @@
 
   
   <ion-card class="CardImg" >
-    <img class="img" src="assets/images/Paris.jpg" />
+    <img class="img" id="img5" src="https://images.unsplash.com/photo-1505205296326-2178af1b47bf?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80" />
    
     <ion-content>
       <ion-fab  vertical="top" horizontal="end" slot="fixed">
-        <ion-fab-button color="light" id="fab" >
+        <ion-fab-button color="light" id="fab" (click)="like('img5')" >
           <ion-icon name="heart" id="heart"></ion-icon>
         </ion-fab-button>
       </ion-fab> 
